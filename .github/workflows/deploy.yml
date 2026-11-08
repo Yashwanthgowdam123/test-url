@@ -45,23 +45,151 @@ jobs:
         if: always()
         shell: bash
         run: |
+          # 1. Extract counts & metadata using jq
           TOTAL=$(jq '[.Results[]?.Vulnerabilities[]?] | length' trivy.json)
+          UNKNOWN=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="UNKNOWN")] | length' trivy.json)
           LOW=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="LOW")] | length' trivy.json)
           MEDIUM=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="MEDIUM")] | length' trivy.json)
           HIGH=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH")] | length' trivy.json)
           CRITICAL=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length' trivy.json)
 
+          SCANNER_VERSION=$(jq -r '.Metadata.ScannerVersion // "Unknown"' trivy.json)
+          DB_UPDATED=$(jq -r '.Metadata.ImageMetadata.Created // .Metadata.UpdatedAt // "Unknown"' trivy.json)
+          TARGET=$(jq -r '.ArtifactName // "${{ env.IMAGE_LC }}"' trivy.json)
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+
+          # 2. Evaluate Quality Gate Conditions
+          # Policy: TOTAL < 10, LOW_MEDIUM < 8, HIGH_CRITICAL < 2
+          LOW_MEDIUM=$((LOW + MEDIUM))
+          HIGH_CRITICAL=$((HIGH + CRITICAL))
+
+          TOTAL_STATUS="❌"
+          if [ "$TOTAL" -lt 10 ]; then TOTAL_STATUS="✅"; fi
+
+          HM_STATUS="❌"
+          if [ "$LOW_MEDIUM" -lt 8 ]; then HM_STATUS="✅"; fi
+
+          HC_STATUS="❌"
+          if [ "$HIGH_CRITICAL" -lt 2 ]; then HC_STATUS="✅"; fi
+
+          GATE_PASSED=true
+          if [ "$TOTAL" -ge 10 ] || [ "$LOW_MEDIUM" -ge 8 ] || [ "$HIGH_CRITICAL" -ge 2 ]; then
+            GATE_PASSED=false
+          fi
+
+          BANNER="🟢 **PASS** (Quality Gate Succeeded)"
+          if [ "$GATE_PASSED" = false ]; then
+            BANNER="🔴 **FAILED** (Quality Gate Breached)"
+          fi
+
           {
-            echo "# 🛡️ Trivy Scan Report"
+            echo "# 🛡️ DevSecOps Security Report: Trivy Scan"
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 🚀 Scan Banner"
+            echo ""
+            echo "> ### Status: $BANNER"
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 📋 Executive Summary"
+            echo ""
+            echo "| Item | Value |"
+            echo "| :--- | :--- |"
+            echo "| **Repository** | \`${{ github.repository }}\` |"
+            echo "| **Workflow** | \`${{ github.workflow }}\` |"
+            echo "| **Branch** | \`${{ github.ref_name }}\` |"
+            echo "| **Commit SHA** | \`${{ github.sha }}\` |"
+            echo "| **Docker Image** | \`${{ env.IMAGE_LC }}\` |"
+            echo "| **Scan Timestamp** | \`$TIMESTAMP\` |"
+            echo "| **Scanner** | Aqua Security Trivy |"
+            echo "| **Scanner Version** | \`$SCANNER_VERSION\` |"
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 📊 Vulnerability Summary"
             echo ""
             echo "| Severity | Count |"
-            echo "|----------|------:|"
-            echo "| Critical | $CRITICAL |"
-            echo "| High | $HIGH |"
-            echo "| Medium | $MEDIUM |"
-            echo "| Low | $LOW |"
+            echo "| :--- | :---: |"
+            echo "| 🔴 Critical | **$CRITICAL** |"
+            echo "| 🟠 High | **$HIGH** |"
+            echo "| 🟡 Medium | **$MEDIUM** |"
+            echo "| 🔵 Low | **$LOW** |"
+            echo "| ⚪ Unknown | **$UNKNOWN** |"
+            echo "| **Total** | **$TOTAL** |"
             echo ""
-            echo "**Total Vulnerabilities:** $TOTAL"
+            echo "---"
+            echo ""
+            echo "## 🚦 Quality Gate Policy"
+            echo ""
+            echo "| Rule | Threshold | Actual | Status |"
+            echo "| :--- | :---: | :---: | :---: |"
+            echo "| Total Vulnerabilities | < 10 | $TOTAL | $TOTAL_STATUS |"
+            echo "| High + Critical | < 2 | $HIGH_CRITICAL | $HC_STATUS |"
+            echo "| Low + Medium | < 8 | $LOW_MEDIUM | $HM_STATUS |"
+            echo ""
+            if [ "$GATE_PASSED" = true ]; then
+              echo "> ✅ **Quality Gate Passed**: All security thresholds were successfully met."
+            else
+              echo "> ❌ **Quality Gate Failed**: One or more security thresholds were breached."
+            fi
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 🚨 Top Critical & High Issues"
+            echo ""
+            echo "| Package | CVE | Installed Version | Fixed Version | Severity |"
+            echo "| :--- | :--- | :--- | :--- | :--- |"
+            
+            # Extract Critical/High vulnerabilities into markdown table rows
+            jq -r '.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL" or .Severity=="HIGH") | "| `\(.PkgName)` | [\(.VulnerabilityID)](\(.PrimaryURL // "#")) | \(.InstalledVersion) | \(.FixedVersion // "None") | **\(.Severity)** |"' trivy.json || echo "| None | None | None | None | None |"
+            
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 📦 Vulnerabilities Grouped by Package"
+            echo ""
+            echo "| Package | Vulnerability Count |"
+            echo "| :--- | :---: |"
+            
+            # Group and count by package name, sorted descending
+            jq -r '[.Results[]?.Vulnerabilities[]?] | group_by(.PkgName) | map({PkgName: .[0].PkgName, Count: length}) | sort_by(.Count) | reverse | .[] | "| `\(.PkgName)` | \(.Count) |"' trivy.json || echo "| None | 0 |"
+
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 📋 Detailed Vulnerability Inventory"
+            echo ""
+            echo "| Package | Installed | Fixed | Severity | CVE | Title |"
+            echo "| :--- | :--- | :--- | :--- | :--- | :--- |"
+            
+            # Extract all vulnerabilities into detailed inventory table
+            jq -r '.Results[]?.Vulnerabilities[]? | "| `\(.PkgName)` | `\(.InstalledVersion)` | `\(.FixedVersion // "N/A")` | **\(.Severity)** | [\(.VulnerabilityID)](\(.PrimaryURL // "#")) | \(.Title // "N/A" | gsub("\\|"; "-")) |"' trivy.json || echo "| None | N/A | N/A | N/A | N/A | No vulnerabilities found |"
+
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 💡 Remediation Recommendations"
+            echo ""
+            
+            # Dynamically suggest package upgrades for items with fixed versions
+            echo "Based on the scan results, consider the following remediation actions:"
+            echo ""
+            jq -r '.Results[]?.Vulnerabilities[]? | select(.FixedVersion != null) | "- Upgrade **\(.PkgName)** to version **\(.FixedVersion)** to resolve `\(.VulnerabilityID)`."' trivy.json | sort -u | head -n 10
+            echo "- Rebuild the Docker image using the latest secure base images."
+            echo "- Re-run the Trivy security scan after applying package upgrades."
+            echo ""
+            echo "---"
+            echo ""
+            echo "## 🗂️ Scan Metadata & Artifacts"
+            echo ""
+            echo "| Parameter | Value |"
+            echo "| :--- | :--- |"
+            echo "| **Target Scanned** | \`$TARGET\` |"
+            echo "| **Database Last Updated** | \`$DB_UPDATED\` |"
+            echo "| **Artifacts Generated** | ✅ \`trivy.json\` |"
+            echo ""
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Trivy Report
