@@ -25,12 +25,26 @@ type Item struct {
 }
 
 const seed = `[
-["GitHub","https://github.com","Source code repository","github","#1f2937"],
-["GitHub Actions","https://github.com/features/actions","CI/CD pipelines","githubactions","#2563eb"],
-["Jenkins","https://www.jenkins.io","Build and automation","jenkins","#dc2626"],
-["ArgoCD","https://argoproj.github.io/cd","Kubernetes GitOps","argo","#f97316"],
-["Grafana","https://grafana.com","Monitoring dashboards","grafana","#f59e0b"],
-["Prometheus","https://prometheus.io","Metrics and alerting","prometheus","#dc2626"]]`
+["Portfolio (Old)","https://yashwanthgowdam.in/","Personal portfolio showcasing projects, skills, certifications, and professional profile.","globe","#2563eb"],
+
+["Credit Card Bill Splitter","https://creditbillsplit.yashwanthgowdam.in/","Upload and organize credit card statements, split expenses, and generate payment reports.","creditcard","#16a34a"],
+
+["DevOps Interview Questions","https://devopsqna.yashwanthgowdam.in/","Comprehensive DevOps interview questions covering Linux, Docker, Kubernetes, AWS, Terraform, Jenkins, and more.","book","#dc2626"],
+
+["Markup Reader & Creation","https://md.yashwanthgowdam.in/","Online Markdown editor with live preview for creating and reading Markdown documents.","markdown","#7c3aed"],
+
+["Terraform State File to Excel","https://tf2excel.yashwanthgowdam.in/","Convert Terraform state (.tfstate) files into structured Excel spreadsheets.","table","#0f766e"],
+
+["Learn About Subnets","https://learnsubnet.yashwanthgowdam.in/","Interactive subnetting calculator and learning platform for CIDR and IP networking.","network","#ea580c"],
+
+["Basic Multi-Platform Server Inventory","https://server-inventory.yashwanthgowdam.in/","Lightweight inventory system for managing Linux, Windows, and cloud server details.","server","#1d4ed8"],
+
+["Custom Artifactory","https://artifactory.yashwanthgowdam.in/browser/","Self-hosted artifact repository for storing and managing software packages and binaries.","package","#9333ea"],
+
+["Assignment Portal Demo","https://demo-assignment-portal.yashwanthgowdam.in/#/auth/login","Demo assignment submission and management portal with authentication and workflow features.","graduationcap","#0891b2"],
+
+["Images to PDF","https://images2pdf.yashwanthgowdam.in/","Convert one or multiple images into a single PDF with customizable ordering and layout.","image","#f59e0b"]
+]`
 
 var (
 	mu       sync.Mutex
