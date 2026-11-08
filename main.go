@@ -30,17 +30,7 @@ const seed = `[
 ["Jenkins","https://www.jenkins.io","Build and automation","jenkins","#dc2626"],
 ["ArgoCD","https://argoproj.github.io/cd","Kubernetes GitOps","argo","#f97316"],
 ["Grafana","https://grafana.com","Monitoring dashboards","grafana","#f59e0b"],
-["Prometheus","https://prometheus.io","Metrics and alerting","prometheus","#dc2626"],
-["SonarQube","https://www.sonarsource.com","Code quality analysis","sonarqubeserver","#2563eb"],
-["Trivy","https://trivy.dev","Container vulnerability scan","trivy","#7c3aed"],
-["Splunk","https://www.splunk.com","Log analysis and insights","splunk","#22c55e"],
-["Docker Hub","https://hub.docker.com","Container images","docker","#2563eb"],
-["OCI Console","https://cloud.oracle.com","Oracle Cloud Infrastructure","oracle","#dc2626"],
-["AWS Console","https://console.aws.amazon.com","Amazon Web Services","amazonaws","#f59e0b"],
-["Terraform","https://www.terraform.io","Infrastructure as Code","terraform","#7c3aed"],
-["Ansible","https://www.ansible.com","Automation and configuration","ansible","#111827"],
-["Portfolio","https://yashwanthgowdam.in","My personal website","","#1d4ed8"],
-["Project A","https://example.com","Project A application","","#1d4ed8"]]`
+["Prometheus","https://prometheus.io","Metrics and alerting","prometheus","#dc2626"]]`
 
 var (
 	mu       sync.Mutex
