@@ -1,0 +1,55 @@
+name: build-scan-deploy
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: read, packages: write }
+env:
+  IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+jobs:
+  build-scan-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t "${IMAGE,,}" .
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/${{ github.repository }}:${{ github.sha }}
+          format: json
+          output: trivy.json
+          exit-code: "0"
+          severity: LOW,MEDIUM,HIGH,CRITICAL
+      - name: Trivy gate (total<10, low/medium<8, high/critical<2)
+        run: |
+          c() { jq "[.Results[]?.Vulnerabilities[]? | select($1)] | length" trivy.json; }
+          T=$(c 'true'); LM=$(c '.Severity=="LOW" or .Severity=="MEDIUM"'); HC=$(c '.Severity=="HIGH" or .Severity=="CRITICAL"')
+          echo "total=$T low+medium=$LM high+critical=$HC"
+          [ "$T" -lt 10 ] && [ "$LM" -lt 8 ] && [ "$HC" -lt 2 ] || { echo "::error::Trivy gate failed"; exit 1; }
+      - uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+      - run: docker push "${IMAGE,,}"
+
+  deploy:
+    needs: build-scan-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy over SSH
+        env:
+          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.SSH_HOST }}
+          USER_: ${{ secrets.SSH_USER }}
+          PW: ${{ secrets.ADMIN_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          install -m 700 -d ~/.ssh && printf '%s\n' "$KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
+          O="-i $HOME/.ssh/id -o StrictHostKeyChecking=accept-new"
+          S="ssh $O $USER_@$HOST"
+          IMG="${IMAGE,,}"
+          $S 'mkdir -p ~/myurls'
+          scp $O deploy/docker-compose.yml deploy/Caddyfile "$USER_@$HOST:~/myurls/"
+          printf '%s' "$GH_TOKEN" | $S "command -v docker >/dev/null || curl -fsSL https://get.docker.com | sudo sh; sudo docker login ghcr.io -u $ACTOR --password-stdin"
+          $S "cd ~/myurls && umask 077 && printf 'IMAGE=%s\nADMIN_PASSWORD=%s\n' '$IMG' '$PW' > .env && sudo docker compose pull && sudo docker compose up -d --remove-orphans && sudo docker image prune -f"
