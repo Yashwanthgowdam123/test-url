@@ -1,0 +1,21 @@
+services:
+  myurls:
+    image: ${IMAGE}
+    restart: unless-stopped
+    environment:
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    volumes: [myurls-data:/data]
+    healthcheck:
+      test: ["CMD", "/myurls", "-health"]
+      interval: 30s
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [myurls]
+volumes:
+  myurls-data:
+  caddy-data:

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MyURLs – URL Management</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%231d4ed8'/><path d='M9 15l6-6M8 12l-1.5 1.5a3 3 0 004 4L12 16M16 12l1.5-1.5a3 3 0 00-4-4L12 8' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/></svg>">
+<style>
+:root{--nav:#1e2b57;--bg1:#f6f9ff;--bg2:#dfe6f6;--card:#fff;--tx:#0f172a;--mu:#475569;--bl:#1d4ed8;--bd:#d5dcec;--in:#fff;--sh:0 4px 14px rgba(30,43,87,.10)}
+body.dark{--nav:#0b1220;--bg1:#0f172a;--bg2:#162036;--card:#1a2540;--tx:#f1f5f9;--mu:#94a3b8;--bd:#2b3a5c;--in:#111a30;--sh:0 4px 14px rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;flex-direction:column;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tx);background:linear-gradient(180deg,var(--bg1),var(--bg2))}
+button{font:inherit;cursor:pointer}
+header{height:74px;background:var(--nav);display:flex;align-items:center;padding:0 clamp(16px,4vw,60px);color:#fff;gap:18px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:26px;letter-spacing:-.5px;padding-right:18px;border-right:1px solid rgba(255,255,255,.18)}
+.sub{font-size:19px;opacity:.9}.sp{flex:1}
+.tg{display:flex;align-items:center;background:rgba(255,255,255,.08);border-radius:30px;padding:3px}
+.tg button{border:0;background:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:#cbd5e1}
+.tg button.on{background:#fff;color:#1e2b57}
+.usr{position:relative}
+.usr>button{display:flex;align-items:center;gap:8px;background:#0b1220;color:#fff;border:0;border-radius:30px;padding:0 20px;height:46px;font-weight:600;font-size:18px}
+.menu{position:absolute;right:0;top:54px;background:var(--card);color:var(--tx);border-radius:12px;box-shadow:var(--sh);min-width:140px;display:none;overflow:hidden;z-index:5}
+.menu.open{display:block}.menu button{display:block;width:100%;padding:12px 16px;border:0;background:none;color:inherit;text-align:left}
+main{flex:1;width:100%;max-width:1640px;margin:0 auto;padding:30px clamp(16px,3vw,52px)}
+h1{text-align:center;font-size:clamp(34px,5vw,54px);margin:6px 0 4px;letter-spacing:-1.5px;font-weight:800}
+h1 span{color:var(--bl)}
+.lead{text-align:center;color:var(--mu);font-weight:500;font-size:19px;margin:0 0 30px}
+.bar{display:flex;align-items:center;gap:20px;max-width:1280px;margin:0 auto 34px;position:relative}
+.sbox{flex:1;display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--bd);border-radius:18px;height:66px;padding:0 18px;box-shadow:var(--sh)}
+.sbox input{flex:1;border:0;outline:0;background:none;font:inherit;font-size:19px;color:var(--tx)}
+.cnt{background:var(--bg2);color:var(--mu);border-radius:10px;padding:8px 14px;font-weight:600;font-size:15px;white-space:nowrap}
+.add{display:none;align-items:center;gap:8px;background:#1448e0;color:#fff;border:0;border-radius:12px;height:54px;padding:0 24px;font-weight:700;font-size:19px;box-shadow:0 6px 16px rgba(20,72,224,.35)}
+body.admin .add{display:flex}
+.bar-sp{display:none}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 28px}
+@media(max-width:1250px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.sub{display:none}.bar{flex-wrap:wrap}.add{width:100%;justify-content:center}.lead{font-size:16px}}
+.card{position:relative;display:flex;align-items:center;gap:16px;background:var(--card);border-radius:14px;padding:18px 18px 18px 22px;min-height:104px;box-shadow:var(--sh);border-left:4px solid var(--c);text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px)}
+.ic{flex:none;width:60px;height:60px;border-radius:14px;background:var(--bg1);display:grid;place-items:center;font-weight:800;font-size:24px;color:var(--c)}
+.ic img{width:38px;height:38px;object-fit:contain}
+.tx{flex:1;min-width:0}.tx b{display:block;font-size:20px;letter-spacing:-.3px}
+.tx small{display:block;color:var(--mu);font-size:16px;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.act{display:flex;flex-direction:column;align-items:flex-end;gap:14px;align-self:stretch;justify-content:center}
+.row{display:none;gap:14px}body.admin .row{display:flex}
+body.admin .card{align-items:flex-start}
+.ib{border:0;background:none;padding:0;color:#334155;display:grid;place-items:center}
+body.dark .ib{color:#cbd5e1}.ib.del{color:#dc2626!important}.ext{color:#475569}body.dark .ext{color:#cbd5e1}
+.empty{grid-column:1/-1;text-align:center;color:var(--mu);padding:40px}
+footer{max-width:1640px;width:100%;margin:0 auto;padding:22px clamp(16px,3vw,52px);border-top:1px solid var(--bd);display:flex;justify-content:space-between;color:var(--mu);font-size:16px}
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.35);display:none;place-items:center;z-index:10;padding:16px}.ov.open{display:grid}
+.md{background:var(--card);border-radius:20px;width:min(700px,100%);padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.mh{display:flex;gap:16px;align-items:flex-start;margin-bottom:22px}
+.mi{width:46px;height:46px;border-radius:12px;background:#1448e0;color:#fff;display:grid;place-items:center;flex:none}
+.mh h2{margin:0;font-size:26px;letter-spacing:-.5px}.mh p{margin:4px 0 0;color:var(--mu);font-size:16px}
+.x{margin-left:auto;border:0;background:none;color:var(--tx)}
+label{display:block;font-weight:700;margin:16px 0 8px;font-size:16px}label i{color:#dc2626;font-style:normal}
+.f{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--bd);background:var(--in);border-radius:10px;padding:0 14px;color:var(--mu)}
+.f svg{margin-top:14px;flex:none}
+.f input,.f textarea{flex:1;border:0;outline:0;background:none;font:inherit;font-size:17px;color:var(--tx);height:48px}
+.f textarea{height:80px;padding:12px 0;resize:none}
+.cc{text-align:right;color:var(--mu);margin-top:8px;font-size:15px}
+.ft{display:flex;justify-content:flex-end;gap:14px;margin-top:14px}
+.b1,.b2{height:50px;padding:0 24px;border-radius:10px;font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px}
+.b2{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.b1{background:#1448e0;color:#fff;border:0}
+.err{color:#dc2626;min-height:20px;font-size:15px;margin:6px 0 0}
+</style></head><body>
+<header>
+ <div class="logo"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.4" stroke-linecap="round"><path d="M10 13a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 11a4 4 0 00-5.7 0l-3 3A4 4 0 0011 19.7l1-1"/></svg>MyURLs</div>
+ <div class="sub">URL Management</div><div class="sp"></div>
+ <div class="tg"><button id="lt" class="on" title="Light"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><button id="dt" title="Dark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button></div>
+ <div class="usr"><button id="ub"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4.5"/><path d="M3 21c0-4.5 4-7 9-7s9 2.5 9 7z"/></svg><span id="un">Sign in</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+ <div class="menu" id="um"></div></div>
+</header>
+<main>
+ <h1>URL <span>Management</span></h1>
+ <p class="lead">Your central place to access frequently used applications, tools and projects.</p>
+ <div class="bar"><div class="sbox"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" placeholder="Search application or description..." autocomplete="off"><span class="cnt" id="cnt"></span></div>
+ <button class="add" id="addb"><svg width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add URL</button></div>
+ <div class="grid" id="g"></div>
+</main>
+<footer><span>© 2026 MyURLs · URL Management Dashboard</span><span>v1.0.0</span></footer>
+
+<div class="ov" id="ov"><form class="md" id="fm" onsubmit="return false">
+ <div class="mh"><div class="mi"><svg width="26" height="26" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div><div><h2 id="mt">Add New URL</h2><p id="ms">Add a new application or project link to the dashboard.</p></div><button type="button" class="x" id="mx"><svg width="26" height="26" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <label>Application Name <i>*</i></label><div class="f"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg><input id="fn" placeholder="e.g. GitHub, Jenkins, Grafana" maxlength="60"></div>
+ <label>URL <i>*</i></label><div class="f"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 13a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 11a4 4 0 00-5.7 0l-3 3A4 4 0 0011 19.7l1-1"/></svg><input id="fu" placeholder="https://example.com"></div>
+ <label>Short Description <i>*</i></label><div class="f"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h9l4 4v14H6zM9 12h7M9 16h7M9 8h3"/></svg><textarea id="fd" maxlength="120" placeholder="e.g. Source code repository, CI/CD pipeline, Monitoring dashboards"></textarea></div>
+ <div class="cc" id="cc">0 / 120</div><div class="err" id="er"></div>
+ <div class="ft"><button type="button" class="b2" id="mc">Cancel</button><button type="submit" class="b1" id="sv"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h11l3 3v15H5zM8 3v6h7V3M8 21v-7h8v7"/></svg>Save URL</button></div>
+</form></div>
+<div class="ov" id="lo"><form class="md" id="lf" style="width:min(420px,100%)" onsubmit="return false">
+ <div class="mh"><div><h2>Admin sign in</h2><p>Sign in to add, edit or delete URLs.</p></div></div>
+ <label>Password</label><div class="f"><input id="lp" type="password" autocomplete="current-password"></div><div class="err" id="le"></div>
+ <div class="ft"><button type="button" class="b2" id="lc">Cancel</button><button class="b1">Sign in</button></div>
+</form></div>
+
+<script>
+const $=id=>document.getElementById(id);let D=[],admin=false,edit=null;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const api=async(m,u,b)=>{const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});if(!r.ok)throw r;return r.status==204?null:r.json()};
+const PEN='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20l1-4L16.5 4.5a2 2 0 013 3L8 19z"/></svg>';
+const BIN='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5"/></svg>';
+const EXT='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg>';
+function render(){const q=$('q').value.toLowerCase();const L=D.filter(i=>(i.name+i.desc).toLowerCase().includes(q));
+ $('cnt').textContent=D.length+' Items';
+ $('g').innerHTML=L.length?L.map(i=>`<a class="card" style="--c:${esc(i.color)}" href="${esc(i.url)}" target="_blank" rel="noopener" data-id="${i.id}">
+ <div class="ic">${i.icon?`<img src="https://cdn.simpleicons.org/${esc(i.icon)}" alt="" loading="lazy" onerror="this.parentNode.textContent='${esc(i.name[0]).toUpperCase()}'">`:esc(i.name[0]).toUpperCase()}</div>
+ <div class="tx"><b>${esc(i.name)}</b><small>${esc(i.desc)}</small></div>
+ <div class="act"><div class="row"><button class="ib" data-a="e" title="Edit">${PEN}</button><button class="ib del" data-a="d" title="Delete">${BIN}</button></div><span class="ext">${EXT}</span></div></a>`).join(''):'<div class="empty">No applications match your search.</div>'}
+function setAdmin(a){admin=a;document.body.classList.toggle('admin',a);$('un').textContent=a?'Admin':'Sign in';
+ $('um').innerHTML=a?'<button id="lo2">Log out</button>':'<button id="li">Admin sign in</button>'}
+async function load(){D=await api('GET','/api/urls');setAdmin((await api('GET','/api/me')).admin);render()}
+$('q').oninput=render;
+$('ub').onclick=e=>{e.stopPropagation();$('um').classList.toggle('open')};document.onclick=()=>$('um').classList.remove('open');
+$('um').onclick=async e=>{if(e.target.id=='li'){$('lo').classList.add('open');$('lp').focus()}if(e.target.id=='lo2'){await api('POST','/api/logout');setAdmin(false);render()}};
+$('lc').onclick=()=>$('lo').classList.remove('open');
+$('lf').onsubmit=async()=>{try{await api('POST','/api/login',{password:$('lp').value});$('lo').classList.remove('open');$('lp').value='';$('le').textContent='';setAdmin(true);render()}catch{$('le').textContent='Wrong password. Try again.'}};
+function openM(i){edit=i;$('mt').textContent=i?'Edit URL':'Add New URL';$('ms').textContent=i?'Update this link on the dashboard.':'Add a new application or project link to the dashboard.';
+ $('fn').value=i?i.name:'';$('fu').value=i?i.url:'';$('fd').value=i?i.desc:'';$('cc').textContent=$('fd').value.length+' / 120';$('er').textContent='';$('ov').classList.add('open');$('fn').focus()}
+$('addb').onclick=()=>openM(null);$('mc').onclick=$('mx').onclick=()=>$('ov').classList.remove('open');
+$('fd').oninput=()=>$('cc').textContent=$('fd').value.length+' / 120';
+$('fm').onsubmit=async()=>{const b={name:$('fn').value,url:$('fu').value,desc:$('fd').value};
+ if(!b.name.trim()||!b.desc.trim()||!/^https?:\/\/.+/i.test(b.url.trim())){$('er').textContent='Fill every field and start the URL with http:// or https://';return}
+ try{edit?await api('PUT','/api/urls/'+edit.id,b):await api('POST','/api/urls',b);$('ov').classList.remove('open');await load()}catch{$('er').textContent='Could not save. Sign in again and retry.'}};
+$('g').onclick=async e=>{const b=e.target.closest('[data-a]');if(!b)return;e.preventDefault();const i=D.find(x=>x.id==b.closest('.card').dataset.id);
+ if(b.dataset.a=='e')openM(i);else if(confirm('Delete '+i.name+'?')){await api('DELETE','/api/urls/'+i.id);await load()}};
+function theme(d){document.body.classList.toggle('dark',d);$('lt').classList.toggle('on',!d);$('dt').classList.toggle('on',d);try{localStorage.t=d?'d':'l'}catch{}}
+$('lt').onclick=()=>theme(false);$('dt').onclick=()=>theme(true);try{theme(localStorage.t=='d')}catch{}
+load();
+</script></body></html>

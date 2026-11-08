@@ -1,0 +1,4 @@
+myurls.yashwanthgowdam.in {
+	encode gzip
+	reverse_proxy myurls:8080
+}
