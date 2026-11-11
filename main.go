@@ -25,22 +25,26 @@ type Item struct {
 }
 
 const seed = `[
-["GitHub","https://github.com","Source code repository","github","#1f2937"],
-["GitHub Actions","https://github.com/features/actions","CI/CD pipelines","githubactions","#2563eb"],
-["Jenkins","https://www.jenkins.io","Build and automation","jenkins","#dc2626"],
-["ArgoCD","https://argoproj.github.io/cd","Kubernetes GitOps","argo","#f97316"],
-["Grafana","https://grafana.com","Monitoring dashboards","grafana","#f59e0b"],
-["Prometheus","https://prometheus.io","Metrics and alerting","prometheus","#dc2626"],
-["SonarQube","https://www.sonarsource.com","Code quality analysis","sonarqubeserver","#2563eb"],
-["Trivy","https://trivy.dev","Container vulnerability scan","trivy","#7c3aed"],
-["Splunk","https://www.splunk.com","Log analysis and insights","splunk","#22c55e"],
-["Docker Hub","https://hub.docker.com","Container images","docker","#2563eb"],
-["OCI Console","https://cloud.oracle.com","Oracle Cloud Infrastructure","oracle","#dc2626"],
-["AWS Console","https://console.aws.amazon.com","Amazon Web Services","amazonaws","#f59e0b"],
-["Terraform","https://www.terraform.io","Infrastructure as Code","terraform","#7c3aed"],
-["Ansible","https://www.ansible.com","Automation and configuration","ansible","#111827"],
-["Portfolio","https://yashwanthgowdam.in","My personal website","","#1d4ed8"],
-["Project A","https://example.com","Project A application","","#1d4ed8"]]`
+["Portfolio (Old)","https://yashwanthgowdam.in/","Personal portfolio showcasing projects, skills, certifications, and professional profile.","globe","#2563eb"],
+
+["Credit Card Bill Splitter","https://creditbillsplit.yashwanthgowdam.in/","Upload and organize credit card statements, split expenses, and generate payment reports.","creditcard","#16a34a"],
+
+["DevOps Interview Questions","https://devopsqna.yashwanthgowdam.in/","Comprehensive DevOps interview questions covering Linux, Docker, Kubernetes, AWS, Terraform, Jenkins, and more.","book","#dc2626"],
+
+["Markup Reader & Creation","https://md.yashwanthgowdam.in/","Online Markdown editor with live preview for creating and reading Markdown documents.","markdown","#7c3aed"],
+
+["Terraform State File to Excel","https://tf2excel.yashwanthgowdam.in/","Convert Terraform state (.tfstate) files into structured Excel spreadsheets.","table","#0f766e"],
+
+["Learn About Subnets","https://learnsubnet.yashwanthgowdam.in/","Interactive subnetting calculator and learning platform for CIDR and IP networking.","network","#ea580c"],
+
+["Basic Multi-Platform Server Inventory","https://server-inventory.yashwanthgowdam.in/","Lightweight inventory system for managing Linux, Windows, and cloud server details.","server","#1d4ed8"],
+
+["Custom Artifactory","https://artifactory.yashwanthgowdam.in/browser/","Self-hosted artifact repository for storing and managing software packages and binaries.","package","#9333ea"],
+
+["Assignment Portal Demo","https://demo-assignment-portal.yashwanthgowdam.in/#/auth/login","Demo assignment submission and management portal with authentication and workflow features.","graduationcap","#0891b2"],
+
+["Images to PDF","https://images2pdf.yashwanthgowdam.in/","Convert one or multiple images into a single PDF with customizable ordering and layout.","image","#f59e0b"]
+]`
 
 var (
 	mu       sync.Mutex
